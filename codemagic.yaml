@@ -13,14 +13,14 @@ workflows:
           git submodule update --init --recursive
           mkdir -p build-system/local-config
           echo "{}" > build-system/local-config/config.json
-          python3 build-system/Make/Make.py --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --xcodeManagedCodesigning --disableProvisioningProfiles
+          python3 build-system/Make/Make.py --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --overrideXcodeVersion --xcodeManagedCodesigning --disableProvisioningProfiles
           xcodebuild build \
             -workspace Telegram-iOS.xcworkspace \
             -scheme Telegram \
             -configuration Release \
             -sdk iphoneos \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGN_REQUIRED=NO \
+            CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
           mkdir -p Payload
           mv build/Release-iphoneos/Telegram.app Payload/
