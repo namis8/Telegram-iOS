@@ -7,11 +7,15 @@ workflows:
         - telegram
       xcode: latest
     scripts:
-      - name: Fetch Submodules and Generate Project
+      - name: Initialize Submodules and Generate Project
         script: |
           set -e
-          echo "Updating git submodules..."
-          git submodule update --init --recursive
+          echo "Initializing and updating submodules recursively..."
+          git submodule sync
+          git submodule update --init --recursive --force
+          
+          echo "Checking build-system path..."
+          ls -la build-system/Make/
           
           echo "Generating Xcode project via Bazel..."
           python3 build-system/Make/Make --cacheDir="$HOME/telegram-cache" generateProject
