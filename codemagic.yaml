@@ -1,7 +1,6 @@
 workflows:
   telegram-ios-build:
     name: Build Telegram 11.8.1 Unsigned
-    max_build_timeout: 60
     instance_type: mac_mini_m2
     environment:
       xcode: latest
