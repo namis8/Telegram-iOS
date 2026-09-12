@@ -7,7 +7,7 @@ workflows:
         - telegram
       xcode: 16.2
     scripts:
-      - name: Build Telegram via Make.py
+      - name: Generate Project and Build
         script: |
           set -e
           git submodule update --init --recursive
@@ -32,13 +32,24 @@ workflows:
           
           python3 build-system/Make/Make.py \
             --cacheDir="$HOME/telegram-cache" \
-            build \
+            generateProject \
             --configurationPath=build-system/local-config/config.json \
-            --buildNumber=1000 \
-            --configuration=release_arm64 \
-            --xcodeManagedCodesigning
+            --xcodeManagedCodesigning \
+            --disableProvisioningProfiles \
+            --disableExtensions
             
-          mkdir -p build/artifacts
-          find . -name "*.ipa" -exec cp {} build/artifacts/ \;
+          xcodebuild build \
+            -project Telegram/Telegram.xcodeproj \
+            -scheme Telegram \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build_derived_data \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+            
+          mkdir -p Payload
+          cp -R build_derived_data/Build/Products/Release-iphoneos/Telegram.app Payload/
+          zip -qr Telegram_Unsigned_11.8.1.ipa Payload
     artifacts:
-      - build/artifacts/*.ipa
+      - Telegram_Unsigned_11.8.1.ipa
