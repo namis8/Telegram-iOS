@@ -12,6 +12,12 @@ workflows:
           set -e
           git submodule update --init --recursive
           
+          # حقن الكود لحل مشكلة قراءة المتغيرات المنطقية (True/False) في Objective-C
+          echo "#define True 1" > temp.m
+          echo "#define False 0" >> temp.m
+          cat submodules/BuildConfig/Sources/BuildConfig.m >> temp.m
+          mv temp.m submodules/BuildConfig/Sources/BuildConfig.m
+          
           mkdir -p build-system/local-config
           cat << EOF > build-system/local-config/config.json
           {
@@ -22,7 +28,7 @@ workflows:
             "app_center_id": "",
             "is_internal_build": true,
             "is_appstore_build": false,
-            "appstore_id": "",
+            "appstore_id": 686449807,
             "app_specific_url_scheme": "telegram",
             "premium_iap_product_id": "",
             "enable_siri": false,
