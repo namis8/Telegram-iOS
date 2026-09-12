@@ -12,7 +12,6 @@ workflows:
           set -e
           git submodule update --init --recursive
           
-          # حقن الكود لحل مشكلة قراءة المتغيرات المنطقية (True/False) في Objective-C
           echo "#define True 1" > temp.m
           echo "#define False 0" >> temp.m
           cat submodules/BuildConfig/Sources/BuildConfig.m >> temp.m
@@ -36,11 +35,18 @@ workflows:
           }
           EOF
           
+          mkdir -p dummy_codesign/provisioning
+          touch dummy_codesign/WORKSPACE
+          cat << 'EOF' > dummy_codesign/provisioning/BUILD
+          package(default_visibility = ["//visibility:public"])
+          exports_files(glob(["*.mobileprovision"]))
+          EOF
+          
           python3 build-system/Make/Make.py \
             --cacheDir="$HOME/telegram-cache" \
             generateProject \
             --configurationPath=build-system/local-config/config.json \
-            --xcodeManagedCodesigning \
+            --codesigningInformationPath="$PWD/dummy_codesign" \
             --disableProvisioningProfiles \
             --disableExtensions
             
@@ -57,5 +63,6 @@ workflows:
           mkdir -p Payload
           cp -R build_derived_data/Build/Products/Release-iphoneos/Telegram.app Payload/
           zip -qr Telegram_Unsigned_11.8.1.ipa Payload
+          
     artifacts:
       - Telegram_Unsigned_11.8.1.ipa
