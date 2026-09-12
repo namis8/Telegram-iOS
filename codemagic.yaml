@@ -3,6 +3,8 @@ workflows:
     name: Build Telegram 11.8.1 Unsigned
     instance_type: mac_mini_m2
     environment:
+      groups:
+        - telegram
       xcode: latest
     scripts:
       - name: Generate Project and Build Unsigned IPA
