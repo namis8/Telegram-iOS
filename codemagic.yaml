@@ -7,14 +7,10 @@ workflows:
         - telegram
       xcode: 16.2
     scripts:
-      - name: Clean Cache and Build
+      - name: Build Telegram via Make.py
         script: |
           set -e
           git submodule update --init --recursive
-          
-          echo "Cleaning old Bazel cache to fix toolchain mismatch..."
-          rm -rf "$HOME/telegram-cache"
-          rm -rf build/
           
           mkdir -p build-system/local-config
           cat << EOF > build-system/local-config/config.json
@@ -34,19 +30,16 @@ workflows:
           }
           EOF
           
-          python3 build-system/Make/Make.py --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --xcodeManagedCodesigning --disableProvisioningProfiles
-          
-          xcodebuild build \
-            -workspace Telegram-iOS.xcworkspace \
-            -scheme Telegram \
-            -configuration Release \
-            -sdk iphoneos \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          python3 build-system/Make/Make.py \
+            --cacheDir="$HOME/telegram-cache" \
+            build \
+            --configurationPath=build-system/local-config/config.json \
+            --buildNumber=1000 \
+            --configuration=release_arm64 \
+            --xcodeManagedCodesigning \
+            --disableProvisioningProfiles
             
-          mkdir -p Payload
-          mv build/Release-iphoneos/Telegram.app Payload/
-          zip -qr Telegram_Unsigned_11.8.1.ipa Payload
+          mkdir -p build/artifacts
+          find . -name "*.ipa" -exec cp {} build/artifacts/ \;
     artifacts:
-      - Telegram_Unsigned_11.8.1.ipa
+      - build/artifacts/*.ipa
