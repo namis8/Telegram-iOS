@@ -36,8 +36,7 @@ workflows:
             --configurationPath=build-system/local-config/config.json \
             --buildNumber=1000 \
             --configuration=release_arm64 \
-            --xcodeManagedCodesigning \
-            --disableProvisioningProfiles
+            --xcodeManagedCodesigning
             
           mkdir -p build/artifacts
           find . -name "*.ipa" -exec cp {} build/artifacts/ \;
