@@ -5,12 +5,17 @@ workflows:
     environment:
       groups:
         - telegram
-      xcode: latest
+      xcode: 16.2
     scripts:
-      - name: Generate Project and Build
+      - name: Clean Cache and Build
         script: |
           set -e
           git submodule update --init --recursive
+          
+          echo "Cleaning old Bazel cache to fix toolchain mismatch..."
+          rm -rf "$HOME/telegram-cache"
+          rm -rf build/
+          
           mkdir -p build-system/local-config
           cat << EOF > build-system/local-config/config.json
           {
@@ -28,7 +33,9 @@ workflows:
             "enable_icloud": false
           }
           EOF
-          python3 build-system/Make/Make.py --overrideXcodeVersion --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --xcodeManagedCodesigning --disableProvisioningProfiles
+          
+          python3 build-system/Make/Make.py --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --xcodeManagedCodesigning --disableProvisioningProfiles
+          
           xcodebuild build \
             -workspace Telegram-iOS.xcworkspace \
             -scheme Telegram \
@@ -37,6 +44,7 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
+            
           mkdir -p Payload
           mv build/Release-iphoneos/Telegram.app Payload/
           zip -qr Telegram_Unsigned_11.8.1.ipa Payload
