@@ -13,7 +13,7 @@ workflows:
           git submodule update --init --recursive
           mkdir -p build-system/local-config
           echo "{}" > build-system/local-config/config.json
-          python3 build-system/Make/Make.py --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --overrideXcodeVersion --xcodeManagedCodesigning --disableProvisioningProfiles
+          python3 build-system/Make/Make.py --overrideXcodeVersion --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --xcodeManagedCodesigning --disableProvisioningProfiles
           xcodebuild build \
             -workspace Telegram-iOS.xcworkspace \
             -scheme Telegram \
