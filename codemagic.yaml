@@ -12,7 +12,22 @@ workflows:
           set -e
           git submodule update --init --recursive
           mkdir -p build-system/local-config
-          echo "{}" > build-system/local-config/config.json
+          cat << EOF > build-system/local-config/config.json
+          {
+            "bundle_id": "com.custom.telegram.ios",
+            "api_id": $TELEGRAM_API_ID,
+            "api_hash": "$TELEGRAM_API_HASH",
+            "team_id": "XXXXXXXXXX",
+            "app_center_id": "",
+            "is_internal_build": true,
+            "is_appstore_build": false,
+            "appstore_id": "",
+            "app_specific_url_scheme": "telegram",
+            "premium_iap_product_id": "",
+            "enable_siri": false,
+            "enable_icloud": false
+          }
+          EOF
           python3 build-system/Make/Make.py --overrideXcodeVersion --cacheDir="$HOME/telegram-cache" generateProject --configurationPath=build-system/local-config/config.json --xcodeManagedCodesigning --disableProvisioningProfiles
           xcodebuild build \
             -workspace Telegram-iOS.xcworkspace \
